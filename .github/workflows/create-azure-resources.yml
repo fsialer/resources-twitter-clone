@@ -71,24 +71,24 @@ jobs:
 
       - name: Store Secrets in Key Vault
         run: |
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "CLIENT_ID_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "CLIENT_SECRET_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_SECRET_CODE_AUTHORIZATION }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "CLIENT_ID_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_ID_CLIENT_CREDENTIALS }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "CLIENT_SECRET_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_SECRET_CLIENT_CREDENTIALS }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "POSTGRES_USER" --value "${{ secrets.POSTGRES_USER }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "POSTGRES_PASSWORD" --value "${{ secrets.POSTGRES_PASSWORD }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "MONGO_INITDB_ROOT_USERNAME" --value "${{ secrets.MONGO_INITDB_ROOT_USERNAME }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "MONGO_INITDB_ROOT_PASSWORD" --value "${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_ID_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_SECRET_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_SECRET_CODE_AUTHORIZATION }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_ID_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_ID_CLIENT_CREDENTIALS }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_SECRET_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_SECRET_CLIENT_CREDENTIALS }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "POSTGRES_USER" --value "${{ secrets.POSTGRES_USER }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "POSTGRES_PASSWORD" --value "${{ secrets.POSTGRES_PASSWORD }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "MONGO_INITDB_ROOT_USERNAME" --value "${{ secrets.MONGO_INITDB_ROOT_USERNAME }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "MONGO_INITDB_ROOT_PASSWORD" --value "${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}"
           connection_string=$(az servicebus namespace show-connection-string --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_KEY_VAULT}}" --query "connectionString" --output tsv)
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "CONNECTION_SEND_NOTIFICATION_POST" --value "$connection_string"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "KEY_SECRET" --value "${{ secrets.KEY_SECRET }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "SENDGRID_SENDER_EMAIL" --value "${{ secrets.SENDGRID_SENDER_EMAIL }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "SENDGRID_API_KEY" --value "${{ secrets.SENDGRID_API_KEY }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "SMTP_SENDER_EMAIL" --value "${{ secrets.SMTP_SENDER_EMAIL }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "SMTP_USER" --value "${{ secrets.SMTP_USER }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "SMTP_PASSWORD" --value "${{ secrets.SMTP_PASSWORD }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "SMTP_HOST" --value "${{ secrets.SMTP_HOST }}"
-          az keyvault secret set --name "${{vars.AZURE_KEY_VAULT}}" --vault-name "SMTP_PORT" --value "${{ secrets.SMTP_PORT }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CONNECTION_SEND_NOTIFICATION_POST" --value "$connection_string"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "KEY_SECRET" --value "${{ secrets.KEY_SECRET }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SENDGRID_SENDER_EMAIL" --value "${{ secrets.SENDGRID_SENDER_EMAIL }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SENDGRID_API_KEY" --value "${{ secrets.SENDGRID_API_KEY }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SMTP_SENDER_EMAIL" --value "${{ secrets.SMTP_SENDER_EMAIL }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SMTP_USER" --value "${{ secrets.SMTP_USER }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SMTP_PASSWORD" --value "${{ secrets.SMTP_PASSWORD }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SMTP_HOST" --value "${{ secrets.SMTP_HOST }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SMTP_PORT" --value "${{ secrets.SMTP_PORT }}"
           
 
   configure-aks:
