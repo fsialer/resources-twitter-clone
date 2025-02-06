@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authorization-server-dev
+  namespace: development
+data:
+  client_url: http://gateway-server-dev:8090
+  auth_server: http://authorization-server-dev:9000
+  users_url: http://users-service-dev:8080/v1/users
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-server-dev
+  namespace: development
+data:
+  auth_server: http://authorization-server-dev:9000
+  redirect_url: http://gateway-server-dev:8090/authorized
+  users_url: http://users-service-dev:8080/v1/users
+  posts_url: http://posts-service-dev:8081/v1/posts
+  comments_url: http://comments-service-dev:8082/v1/comments
+  likes_url: http://likes-service-dev:8083/v1/likes
+  followers_url: http://followers-service-dev:8084/v1/followers
+  notifications_url: http://notifications-service-dev:8085/v1/notifications
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: users-service-dev
+  namespace: development
+data:
+  db_name: users_db
+  db_host: jr2dbc:postgresql://postgres16:5432/users_db
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: posts-service-dev
+  namespace: development
+data:
+  db_name: posts_db
+  db_host: mongodb://mongo6_posts:27017/posts_db
+  users_url: http://users-service-dev:8080/v1/users
+  followers_url: http://followers-service-dev:8084/v1/followers
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: comments-service-dev
+  namespace: development
+data:
+  db_name: comments_db
+  db_host: mongodb://mongo6_comments:27017/comments_db
+  users_url: http://users-service-dev:8080/v1/users
+  posts_url: http://posts-service-dev:8081/v1/posts
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: likes-service-dev
+  namespace: development
+data:
+  db_name: likes_db
+  db_host: mongodb://mongo6_likes:27017/likes_db
+  users_url: http://users-service-dev:8080/v1/users
+  posts_url: http://posts-service-dev:8081/v1/posts
+  comments_url: http://comments-service-dev:8082/v1/comments
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: followers-service-dev
+  namespace: development
+data:
+  db_name: followers_db
+  db_host: mongodb://mongo6_followers:27017/followers_db
+  users_url: http://users-service-dev:8080/v1/users
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notifications-service-dev
+  namespace: development
+data:
+  db_name: notifications_db
+  db_host: mongodb://mongo6_notifications:27017/notifications_db
+  users_url: http://users-service-dev:8080/v1/users
+  posts_url: http://posts-service-dev:8081/v1/posts
+  comments_url: http://comments-service-dev:8082/v1/comments

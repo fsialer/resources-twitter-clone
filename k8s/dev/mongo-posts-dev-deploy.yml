@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo6_posts-dev
+  namespace: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo6_posts-dev
+  template:
+    metadata:
+      labels:
+        app: mongo6_posts-dev
+    spec:
+      containers:
+        - image: mongo:6.0
+          name: mongo6_posts-dev
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secrets
+                  key: MONGO_INITDB_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secrets
+                  key: MONGO_INITDB_ROOT_PASSWORD
+            - name: MONGO_INITDB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: posts-service-dev
+                  key: db_name
+          volumeMounts:
+            - name: mongo-posts
+              mountPath: /data/db
+      volumes:
+        - name: mongo-posts
+          persistentVolumeClaim:
+            claimName: mongo-posts-pvc-dev

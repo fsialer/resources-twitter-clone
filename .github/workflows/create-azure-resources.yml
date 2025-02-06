@@ -1,0 +1,114 @@
+name: CREATE AZURE RESOURCES
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-azure-service-bus:
+    runs-on: ubuntu-latest
+    needs: configure-key-vault  # Se ejecuta después de la Azure Function
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Azure Service Bus Topic
+        run: |
+          az servicebus namespace create --resource-group $AZURE_RESOURCE_GROUP --name AZURE_BUS_SERVICE --location AZURE_LOCATION --sku Standard
+          az servicebus topic create --resource-group $AZURE_RESOURCE_GROUP --namespace-name AZURE_BUS_SERVICE --name $AZURE_SB_NAME_TOPIC
+          az servicebus topic subscription create --resource-group $AZURE_RESOURCE_GROUP --namespace-name AZURE_BUS_SERVICE --topic-name $AZURE_SB_NAME_TOPIC --name my-subscription
+
+  configure-key-vault:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Azure Key Vault
+        run: |
+          az keyvault create --name $AZURE_KEU_VAULT --resource-group AZURE_RESOURCE_GROUP --location AZURE_LOCATION
+          az keyvault set-policy --name $AZURE_KEU_VAULT --spn $(az ad sp show --id $(az account show --query user.principalId --output tsv) --query appId --output tsv) --secret-permissions get list set delete
+
+      - name: Store Secrets in Key Vault
+        run: |
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "CLIENT_ID_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "CLIENT_SECRET_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_SECRET_CODE_AUTHORIZATION }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "CLIENT_ID_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_ID_CLIENT_CREDENTIALS }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "CLIENT_SECRET_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_SECRET_CLIENT_CREDENTIALS }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "POSTGRES_USER" --value "${{ secrets.POSTGRES_USER }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "POSTGRES_PASSWORD" --value "${{ secrets.POSTGRES_PASSWORD }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "MONGO_INITDB_ROOT_USERNAME" --value "${{ secrets.MONGO_INITDB_ROOT_USERNAME }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "MONGO_INITDB_ROOT_PASSWORD" --value "${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}"
+          connection_string=$(az servicebus namespace show-connection-string --resource-group gr-twitterclone --name twitterCloneBus --query "connectionString" --output tsv)
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "CONNECTION_SEND_NOTIFICATION_POST" --value "$connection_string"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "KEY_SECRET" --value "${{ secrets.KEY_SECRET }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "SENDGRID_SENDER_EMAIL" --value "${{ secrets.SENDGRID_SENDER_EMAIL }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "SENDGRID_API_KEY" --value "${{ secrets.SENDGRID_API_KEY }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "SMTP_SENDER_EMAIL" --value "${{ secrets.SMTP_SENDER_EMAIL }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "SMTP_USER" --value "${{ secrets.SMTP_USER }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "SMTP_PASSWORD" --value "${{ secrets.SMTP_PASSWORD }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "SMTP_HOST" --value "${{ secrets.SMTP_HOST }}"
+          az keyvault secret set --vault-name $AZURE_KEU_VAULT --name "SMTP_PORT" --value "${{ secrets.SMTP_PORT }}"
+          
+
+  configure-aks:
+    runs-on: ubuntu-latest
+    needs: configure-key-vault  # Se ejecuta después de la Azure Function
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configure kubectl
+        run: |
+          az aks get-credentials --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_AKS_CLUSTER --overwrite-existing
+          az aks update --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_AKS_CLUSTER --tier free  # Configura el nivel gratuito
+
+#      - name: Give execute permissions to deploy script
+#        run: chmod +x k8s/dev/deploy-dev.sh
+#
+#      - name: Deploy to AKS
+#        run: ./k8s/dev/deploy-dev.sh  # Ejecuta el script
+#
+#      - name: Deploy to AKS
+#        run: |
+#          kubectl apply -f k8s/dev
+#          kubectl rollout status deployment/gateway-dev -n development
+#          kubectl get ingress -n development  # Verifica los recursos de networking
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [configure-aks]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Give execute permissions to deploy script
+        run: chmod +x k8s/dev/deploy-dev.sh
+
+      - name: Deploy to AKS
+        run: ./k8s/dev/deploy-dev.sh  # Ejecuta el script
+
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f k8s/dev
+          kubectl rollout status deployment/gateway-dev -n development
+          kubectl get ingress -n development  # Verifica los recursos de networking

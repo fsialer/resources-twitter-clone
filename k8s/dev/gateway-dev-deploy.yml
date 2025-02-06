@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-server-dev
+  namespace: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-server-dev
+  template:
+    metadata:
+      labels:
+        app: gateway-server-dev
+    spec:
+      containers:
+        - image: feralexis007/twitter-clone-gateway-server:dev-aa0f711
+          name: gateway-server-dev
+          ports:
+            - containerPort: 8090
+          env:
+            - name: AUTH_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server-dev
+                  key: auth_server
+            - name: REDIRECT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server-dev
+                  key: redirect_url
+            - name: USERS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server-dev
+                  key: users_url
+            - name: POSTS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server-dev
+                  key: posts_url
+            - name: COMMENTS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server-dev
+                  key: comments_url
+            - name: LIKES_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server-dev
+                  key: likes_url
+            - name: FOLLOWERS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server-dev
+                  key: followers_url
+            - name: NOTIFICATIONS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server-dev
+                  key: notifications_url
+            - name: KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: gateway-secrets
+                  key: KEY_SECRET

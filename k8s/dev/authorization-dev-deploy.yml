@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authorization-server-dev
+  namespace: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authorization-server-dev
+  template:
+    metadata:
+      labels:
+        app: authorization-server-dev
+    spec:
+      containers:
+        - image: feralexis007/twitter-clone-authorization-server:dev-1e2cee0
+          name: authorization-server-dev
+          ports:
+            - containerPort: 9000
+          env:
+            - name: CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-server-dev
+                  key: client_url
+            - name: AUTH_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-server-dev
+                  key: auth_server
+            - name: USERS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-server-dev
+                  key: users_url
+            - name: CLIENT_ID_CODE_AUTHORIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secrets
+                  key: CLIENT_ID_CODE_AUTHORIZATION
+            - name: CLIENT_SECRET_CODE_AUTHORIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secrets
+                  key: CLIENT_SECRET_CODE_AUTHORIZATION
+            - name: CLIENT_ID_CLIENT_CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secrets
+                  key: CLIENT_ID_CLIENT_CREDENTIALS
+            - name: CLIENT_SECRET_CLIENT_CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secrets
+                  key: CLIENT_SECRET_CLIENT_CREDENTIALS

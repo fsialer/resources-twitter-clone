@@ -1,0 +1,26 @@
+name: DEPLOY AKS
+on:
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Give execute permissions to deploy script
+        run: chmod +x k8s/dev/deploy-dev.sh
+
+      - name: Deploy to AKS
+        run: ./k8s/dev/deploy-dev.sh  # Ejecuta el script
+
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f k8s/dev
+          kubectl rollout status deployment/gateway-dev -n development
+          kubectl get ingress -n development  # Verifica los recursos de networking

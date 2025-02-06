@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authorization-server-prod
+  namespace: production
+data:
+  client_url: http://gateway-server-prod:8090
+  auth_server: http://authorization-server-prod:9000
+  users_url: http://users-service-prod:8080/v1/users
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-server-prod
+  namespace: production
+data:
+  auth_server: http://authorization-server-prod:9000
+  redirect_url: http://gateway-server-prod:8090/authorized
+  users_url: http://users-service-prod:8080/v1/users
+  posts_url: http://posts-service-prod:8081/v1/posts
+  comments_url: http://comments-service-prod:8082/v1/comments
+  likes_url: http://likes-service-prod:8083/v1/likes
+  followers_url: http://followers-service-prod:8084/v1/followers
+  notifications_url: http://notifications-service-prod:8085/v1/notifications
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: users-service-prod
+  namespace: production
+data:
+  db_name: users_db
+  db_host: jr2dbc:postgresql://postgres16:5432/users_db
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: posts-service-prod
+  namespace: production
+data:
+  db_name: posts_db
+  db_host: mongodb://mongo6_posts:27017/posts_db
+  users_url: http://users-service-prod:8080/v1/users
+  followers_url: http://followers-service-prod:8084/v1/followers
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: comments-service-prod
+  namespace: production
+data:
+  db_name: comments_db
+  db_host: mongodb://mongo6_comments:27017/comments_db
+  users_url: http://users-service-prod:8080/v1/users
+  posts_url: http://posts-service-prod:8081/v1/posts
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: likes-service-prod
+  namespace: production
+data:
+  db_name: likes_db
+  db_host: mongodb://mongo6_likes:27017/likes_db
+  users_url: http://users-service-prod:8080/v1/users
+  posts_url: http://posts-service-prod:8081/v1/posts
+  comments_url: http://comments-service-prod:8082/v1/comments
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: followers-service-prod
+  namespace: production
+data:
+  db_name: followers_db
+  db_host: mongodb://mongo6_followers:27017/followers_db
+  users_url: http://users-service-prod:8080/v1/users
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notifications-service-prod
+  namespace: production
+data:
+  db_name: notifications_db
+  db_host: mongodb://mongo6_notifications:27017/notifications_db
+  users_url: http://users-service-prod:8080/v1/users
+  posts_url: http://posts-service-prod:8081/v1/posts
+  comments_url: http://comments-service-prod:8082/v1/comments
