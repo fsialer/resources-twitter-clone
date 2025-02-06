@@ -3,6 +3,9 @@ name: CREATE AZURE RESOURCES
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+
 jobs:
   deploy-azure-service-bus:
     runs-on: ubuntu-latest
