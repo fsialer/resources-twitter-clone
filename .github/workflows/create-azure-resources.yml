@@ -72,7 +72,12 @@ jobs:
       - name: Create Azure Key Vault
         run: |
           az keyvault create --name "${{vars.AZURE_KEY_VAULT}}" --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --location "${{vars.AZURE_LOCATION}}"
-          az keyvault set-policy --name "${{vars.AZURE_KEY_VAULT}}" --spn $(az ad sp show --id $(az account show --query user.principalId --output tsv) --query appId --output tsv) --secret-permissions get list set delete
+      - name:  Asignar permisos en key vault
+        run: |
+          USER_OBJECT_ID=$(az ad signed-in-user show --query id --output tsv)
+          echo "User Object ID: $USER_OBJECT_ID"
+          az keyvault set-policy --name "${{ vars.AZURE_KEY_VAULT }}" --object-id "$USER_OBJECT_ID" --secret-permissions get list set delete
+##          az keyvault set-policy --name "${{vars.AZURE_KEY_VAULT}}" --spn $(az ad sp show --id $(az account show --query user.principalId --output tsv) --query appId --output tsv) --secret-permissions get list set delete
 
       - name: Store Secrets in Key Vault
         run: |
