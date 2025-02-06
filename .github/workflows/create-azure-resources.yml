@@ -24,7 +24,7 @@ jobs:
 #          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 #          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 #          enable-AzPSSession: false
-#          environment: azurecloud
+#          varsironment: azurecloud
 #          allow-no-subscriptions: false
 #          audience: api://AzureADTokenExchange
 #          auth-type: SERVICE_PRINCIPAL
@@ -42,9 +42,9 @@ jobs:
 
       - name: Create Azure Service Bus Topic
         run: |
-          az servicebus namespace create --resource-group "${{env.AZURE_RESOURCE_GROUP}}" --name "${{env.AZURE_BUS_SERVICE}}" --location "${{env.AZURE_LOCATION}}" --sku Standard
-          az servicebus topic create --resource-group "${{env.AZURE_RESOURCE_GROUP}}" --namespace-name "${{env.AZURE_BUS_SERVICE}}" --name "${{env.AZURE_SB_NAME_TOPIC}}"
-          az servicebus topic subscription create --resource-group "${{env.AZURE_RESOURCE_GROUP}}" --namespace-name "{{env.AZURE_BUS_SERVICE}}" --topic-name "${{env.AZURE_SB_NAME_TOPIC}}" --name "${{env.AZURE_SB_NAME_SUBSCRIPTION}}"
+          az servicebus namespace create --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_BUS_SERVICE}}" --location "${{vars.AZURE_LOCATION}}" --sku Standard
+          az servicebus topic create --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --namespace-name "${{vars.AZURE_BUS_SERVICE}}" --name "${{vars.AZURE_SB_NAME_TOPIC}}"
+          az servicebus topic subscription create --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --namespace-name "{{vars.AZURE_BUS_SERVICE}}" --topic-name "${{vars.AZURE_SB_NAME_TOPIC}}" --name "${{vars.AZURE_SB_NAME_SUBSCRIPTION}}"
 
   configure-key-vault:
     runs-on: ubuntu-latest
@@ -71,29 +71,29 @@ jobs:
 
       - name: Create Azure Key Vault
         run: |
-          az keyvault create --name "${{env.AZURE_KEU_VAULT}}" --resource-group "${{env.AZURE_RESOURCE_GROUP}}" --location "${{env.AZURE_LOCATION}}"
-          az keyvault set-policy --name "${{env.AZURE_KEU_VAULT}}" --spn $(az ad sp show --id $(az account show --query user.principalId --output tsv) --query appId --output tsv) --secret-permissions get list set delete
+          az keyvault create --name "${{vars.AZURE_KEY_VAULT}}" --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --location "${{vars.AZURE_LOCATION}}"
+          az keyvault set-policy --name "${{vars.AZURE_KEY_VAULT}}" --spn $(az ad sp show --id $(az account show --query user.principalId --output tsv) --query appId --output tsv) --secret-permissions get list set delete
 
       - name: Store Secrets in Key Vault
         run: |
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "CLIENT_ID_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "CLIENT_SECRET_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_SECRET_CODE_AUTHORIZATION }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "CLIENT_ID_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_ID_CLIENT_CREDENTIALS }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "CLIENT_SECRET_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_SECRET_CLIENT_CREDENTIALS }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "POSTGRES_USER" --value "${{ secrets.POSTGRES_USER }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "POSTGRES_PASSWORD" --value "${{ secrets.POSTGRES_PASSWORD }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}" --name "MONGO_INITDB_ROOT_USERNAME" --value "${{ secrets.MONGO_INITDB_ROOT_USERNAME }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "MONGO_INITDB_ROOT_PASSWORD" --value "${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}"
-          connection_string=$(az servicebus namespace show-connection-string --resource-group "${{env.AZURE_RESOURCE_GROUP}}" --name "${{env.AZURE_KEU_VAULT}}" --query "connectionString" --output tsv)
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "CONNECTION_SEND_NOTIFICATION_POST" --value "$connection_string"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "KEY_SECRET" --value "${{ secrets.KEY_SECRET }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "SENDGRID_SENDER_EMAIL" --value "${{ secrets.SENDGRID_SENDER_EMAIL }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "SENDGRID_API_KEY" --value "${{ secrets.SENDGRID_API_KEY }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "SMTP_SENDER_EMAIL" --value "${{ secrets.SMTP_SENDER_EMAIL }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "SMTP_USER" --value "${{ secrets.SMTP_USER }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "SMTP_PASSWORD" --value "${{ secrets.SMTP_PASSWORD }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "SMTP_HOST" --value "${{ secrets.SMTP_HOST }}"
-          az keyvault secret set --vault-name "${{env.AZURE_KEU_VAULT}}" --name "SMTP_PORT" --value "${{ secrets.SMTP_PORT }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_ID_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_SECRET_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_SECRET_CODE_AUTHORIZATION }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_ID_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_ID_CLIENT_CREDENTIALS }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_SECRET_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_SECRET_CLIENT_CREDENTIALS }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "POSTGRES_USER" --value "${{ secrets.POSTGRES_USER }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "POSTGRES_PASSWORD" --value "${{ secrets.POSTGRES_PASSWORD }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}" --name "MONGO_INITDB_ROOT_USERNAME" --value "${{ secrets.MONGO_INITDB_ROOT_USERNAME }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "MONGO_INITDB_ROOT_PASSWORD" --value "${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}"
+          connection_string=$(az servicebus namespace show-connection-string --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_KEY_VAULT}}" --query "connectionString" --output tsv)
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CONNECTION_SEND_NOTIFICATION_POST" --value "$connection_string"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "KEY_SECRET" --value "${{ secrets.KEY_SECRET }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SENDGRID_SENDER_EMAIL" --value "${{ secrets.SENDGRID_SENDER_EMAIL }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SENDGRID_API_KEY" --value "${{ secrets.SENDGRID_API_KEY }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SMTP_SENDER_EMAIL" --value "${{ secrets.SMTP_SENDER_EMAIL }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SMTP_USER" --value "${{ secrets.SMTP_USER }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SMTP_PASSWORD" --value "${{ secrets.SMTP_PASSWORD }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SMTP_HOST" --value "${{ secrets.SMTP_HOST }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "SMTP_PORT" --value "${{ secrets.SMTP_PORT }}"
           
 
   configure-aks:
@@ -117,8 +117,8 @@ jobs:
 
       - name: Configure kubectl
         run: |
-          az aks get-credentials --resource-group "${{env.AZURE_RESOURCE_GROUP}}" --name "${{env.AZURE_AKS_CLUSTER}}" --overwrite-existing
-          az aks update --resource-group "${{env.AZURE_RESOURCE_GROUP}}" --name "${{env.AZURE_AKS_CLUSTER}}" --tier free  # Configura el nivel gratuito
+          az aks get-credentials --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_AKS_CLUSTER}}" --overwrite-existing
+          az aks update --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_AKS_CLUSTER}}" --tier free  # Configura el nivel gratuito
 
 #      - name: Give execute permissions to deploy script
 #        run: chmod +x k8s/dev/deploy-dev.sh
