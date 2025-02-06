@@ -71,6 +71,7 @@ jobs:
 
       - name: Store Secrets in Key Vault
         run: |
+          echo "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
           az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_ID_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
           az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_SECRET_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_SECRET_CODE_AUTHORIZATION }}"
           az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_ID_CLIENT_CREDENTIALS" --value "${{ secrets.CLIENT_ID_CLIENT_CREDENTIALS }}"
