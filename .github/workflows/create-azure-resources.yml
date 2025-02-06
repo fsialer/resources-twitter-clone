@@ -44,7 +44,7 @@ jobs:
         run: |
           az servicebus namespace create --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_BUS_SERVICE}}" --location "${{vars.AZURE_LOCATION}}" --sku Standard
           az servicebus topic create --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --namespace-name "${{vars.AZURE_BUS_SERVICE}}" --name "${{vars.AZURE_SB_NAME_TOPIC}}"
-          az servicebus topic subscription create --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --namespace-name "{{vars.AZURE_BUS_SERVICE}}" --topic-name "${{vars.AZURE_SB_NAME_TOPIC}}" --name "${{vars.AZURE_SB_NAME_SUBSCRIPTION}}"
+          az servicebus topic subscription create --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --namespace-name "${{vars.AZURE_BUS_SERVICE}}" --topic-name "${{vars.AZURE_SB_NAME_TOPIC}}" --name "${{vars.AZURE_SB_NAME_SUBSCRIPTION}}"
 
   configure-key-vault:
     runs-on: ubuntu-latest
