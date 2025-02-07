@@ -119,8 +119,8 @@ jobs:
           --node-count 1 \
           --enable-addons monitoring \
           --generate-ssh-keys
-          --tier free
-          az aks get-credentials --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_AKS_CLUSTER}}" --overwrite-existing
+          --node-vm-size Standard_B1s
+
 #          az aks update --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_AKS_CLUSTER}}" --tier free  # Configura el nivel gratuito
 
 
@@ -163,6 +163,7 @@ jobs:
 
       - name: Deploy to AKS
         run: |
+          az aks get-credentials --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_AKS_CLUSTER}}" --overwrite-existing
           kubectl apply -f k8s/dev
           kubectl rollout status deployment/gateway-dev -n development
           kubectl get ingress -n development  # Verifica los recursos de networking
