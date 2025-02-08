@@ -42,13 +42,13 @@ jobs:
         run: |
           az keyvault create --name "${{vars.AZURE_KEY_VAULT}}" --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --location "${{vars.AZURE_LOCATION}}"
 
-      - name:  Asignar permisos en key vault
-        run: |
-          USER_OBJECT_ID=$(az ad sp show --id "${{ secrets.AZURE_CLIENT_ID }}" --query id --output tsv)
-          echo "User Object ID: $USER_OBJECT_ID"
-          az role assignment create --assignee "${{ secrets.AZURE_CLIENT_ID }}" \
-          --role "Key Vault Administrator" \
-          --scope "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ vars.AZURE_RESOURCE_GROUP }}/providers/Microsoft.KeyVault/vaults/${{ vars.AZURE_KEY_VAULT }}"
+#      - name:  Asignar permisos en key vault
+#        run: |
+#          USER_OBJECT_ID=$(az ad sp show --id "${{ secrets.AZURE_CLIENT_ID }}" --query id --output tsv)
+#          echo "User Object ID: $USER_OBJECT_ID"
+#          az role assignment create --assignee "${{ secrets.AZURE_CLIENT_ID }}" \
+#          --role "Key Vault Administrator" \
+#          --scope "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ vars.AZURE_RESOURCE_GROUP }}/providers/Microsoft.KeyVault/vaults/${{ vars.AZURE_KEY_VAULT }}"
 
           
 
