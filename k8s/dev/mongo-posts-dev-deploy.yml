@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongo6_posts-dev
+  name: mongo6postsdev
   namespace: development
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mongo6_posts-dev
+      app: mongo6postsdev
   template:
     metadata:
       labels:
-        app: mongo6_posts-dev
+        app: mongo6postsdev
     spec:
       containers:
         - image: mongo:6.0
-          name: mongo6_posts-dev
+          name: mongo6postsdev
           ports:
             - containerPort: 27017
           env:
@@ -37,7 +37,17 @@ spec:
           volumeMounts:
             - name: mongo-posts
               mountPath: /data/db
+#            - name: secrets-store-inline  # 🔹 Montar los secretos en el contenedor
+#              mountPath: "/mnt/secrets-store"
+#              readOnly: true
       volumes:
+#        - name: secrets-store-inline
+#          csi:
+#            driver: secrets-store.csi.k8s.io
+#            readOnly: true
+#            volumeAttributes:
+#              secretProviderClass: "azure-keyvault-secret-provider"  # 🔹 Asegúrate de que esta línea esté bien definida
+
         - name: mongo-posts
           persistentVolumeClaim:
             claimName: mongo-posts-pvc-dev

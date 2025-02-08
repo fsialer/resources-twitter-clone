@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-server
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-server
+  template:
+    metadata:
+      labels:
+        app: gateway-server
+    spec:
+      containers:
+        - image: feralexis007/twitter-clone-gateway-server:dev-0619e65
+          name: gateway-server
+          ports:
+            - containerPort: 8090
+          env:
+            - name: AUTH_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server
+                  key: auth_server
+            - name: REDIRECT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server
+                  key: redirect_url
+            - name: USERS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server
+                  key: users_url
+            - name: POSTS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server
+                  key: posts_url
+            - name: COMMENTS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server
+                  key: comments_url
+            - name: LIKES_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server
+                  key: likes_url
+            - name: FOLLOWERS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server
+                  key: followers_url
+            - name: NOTIFICATIONS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gateway-server
+                  key: notifications_url
+            - name: KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: gateway-secrets
+                  key: key_secret
+          volumeMounts:
+            - name: azure-secrets
+              mountPath: /mnt/secrets-store
+              readOnly: true
+      volumes:
+        - name: azure-secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-key-vault-secret"

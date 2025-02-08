@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: posts-service
+  namespace: dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: posts-service
+  template:
+    metadata:
+      labels:
+        app: posts-service
+    spec:
+      containers:
+        - image: feralexis007/twitter-clone-posts-service:dev-235919c
+          name: posts-service
+          ports:
+            - containerPort: 8081
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: posts-service
+                  key: db_host
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secrets
+                  key: mongo_user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secrets
+                  key: mongo_password
+            - name: CONNECTION_SEND_NOTIFICATION
+              valueFrom:
+                secretKeyRef:
+                  name: service-bus-secrets
+                  key: connection_send_notification
+            - name: USERS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: posts-service
+                  key: users_url
+            - name: FOLLOWERS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: posts-service
+                  key: followers_url
+          volumeMounts:
+            - name: azure-secrets
+              mountPath: /mnt/secrets-store
+              readOnly: true
+      volumes:
+        - name: azure-secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-key-vault-secret"

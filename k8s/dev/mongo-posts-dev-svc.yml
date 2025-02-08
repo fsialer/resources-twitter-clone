@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo6_posts-dev
+  name: mongo6postsdev
   namespace: development
 spec:
   ports:
@@ -9,5 +9,5 @@ spec:
       protocol: TCP
       targetPort: 27017
   selector:
-    app: mongo6_posts-dev
+    app: mongo6postsdev
   type: ClusterIP

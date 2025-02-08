@@ -19,26 +19,6 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-#          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-#          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-#          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-#          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-#          enable-AzPSSession: false
-#          varsironment: azurecloud
-#          allow-no-subscriptions: false
-#          audience: api://AzureADTokenExchange
-#          auth-type: SERVICE_PRINCIPAL
-
-
-
-
-
-
-
-
-
-
-
 
       - name: Create Azure Service Bus Topic
         run: |
@@ -57,9 +37,11 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Create Azure Key Vault
         run: |
           az keyvault create --name "${{vars.AZURE_KEY_VAULT}}" --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --location "${{vars.AZURE_LOCATION}}"
+
       - name:  Asignar permisos en key vault
         run: |
           USER_OBJECT_ID=$(az ad sp show --id "${{ secrets.AZURE_CLIENT_ID }}" --query id --output tsv)
@@ -67,29 +49,28 @@ jobs:
           az role assignment create --assignee "$USER_OBJECT_ID" \
           --role "Key Vault Secrets Officer" \
           --scope "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ vars.AZURE_RESOURCE_GROUP }}/providers/Microsoft.KeyVault/vaults/${{ vars.AZURE_KEY_VAULT }}"
-##          az keyvault set-policy --name "${{vars.AZURE_KEY_VAULT}}" --spn $(az ad sp show --id $(az account show --query user.principalId --output tsv) --query appId --output tsv) --secret-permissions get list set delete
 
       - name: Store Secrets in Key Vault
         run: |
           echo "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "clientidcodeauthorization" --value "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "clientsecretcodeauthorization" --value "${{ secrets.CLIENT_SECRET_CODE_AUTHORIZATION }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "clientidclientcredentials" --value "${{ secrets.CLIENT_ID_CLIENT_CREDENTIALS }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "clientsecretclientcredentials" --value "${{ secrets.CLIENT_SECRET_CLIENT_CREDENTIALS }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "postgresuser" --value "${{ secrets.POSTGRES_USER }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "postgrespassword" --value "${{ secrets.POSTGRES_PASSWORD }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "mongoinitdbrootusername" --value "${{ secrets.MONGO_INITDB_ROOT_USERNAME }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "mongoinitdbrootpassword" --value "${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}"
-          connection_string=$(az servicebus namespace authorization-rule keys list --resource-group gr-twitterclone --namespace-name "twitter-clone-bus" --name "RootManageSharedAccessKey"  --query "primaryConnectionString"   --output tsv)
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "connectionsendnotificationpost" --value "$connection_string"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "keysecret" --value "${{ secrets.KEY_SECRET }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "sendgridsenderemail" --value "${{ secrets.SENDGRID_SENDER_EMAIL }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "sendgridapikey" --value "${{ secrets.SENDGRID_API_KEY }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "smtpsenderemail" --value "${{ secrets.SMTP_SENDER_EMAIL }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "smtpuser" --value "${{ secrets.SMTP_USER }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "smtppassword" --value "${{ secrets.SMTP_PASSWORD }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "smtphost" --value "${{ secrets.SMTP_HOST }}"
-          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "smtpport" --value "${{ secrets.SMTP_PORT }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "client_id_code_authorization" --value "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "client_secret_code_authorization" --value "${{ secrets.CLIENT_SECRET_CODE_AUTHORIZATION }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "client_id_client_credentials" --value "${{ secrets.CLIENT_ID_CLIENT_CREDENTIALS }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "client_secret_client_credentials" --value "${{ secrets.CLIENT_SECRET_CLIENT_CREDENTIALS }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "postgres_user" --value "${{ secrets.POSTGRES_USER }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "postgres_password" --value "${{ secrets.POSTGRES_PASSWORD }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "mongo_user" --value "${{ secrets.MONGO_INITDB_ROOT_USERNAME }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "mongo_password" --value "${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}"
+          connection_string=$(az servicebus namespace authorization-rule keys list --resource-group ${{vars.AZURE_RESOURCE_GROUP}} --namespace-name "${{vars.AZURE_BUS_SERVICE}}" --name "RootManageSharedAccessKey"  --query "primaryConnectionString"   --output tsv)
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "connection_send_notification" --value "$connection_string"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "key_secret" --value "${{ secrets.KEY_SECRET }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "send_grid_sender_email" --value "${{ secrets.SENDGRID_SENDER_EMAIL }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "send_grid_api_key" --value "${{ secrets.SENDGRID_API_KEY }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "smtp_sender_email" --value "${{ secrets.SMTP_SENDER_EMAIL }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "smtp_user" --value "${{ secrets.SMTP_USER }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "smtp_password" --value "${{ secrets.SMTP_PASSWORD }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "smtp_host" --value "${{ secrets.SMTP_HOST }}"
+          az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "smtp_port" --value "${{ secrets.SMTP_PORT }}"
 #            "az keyvault secret set --vault-name "${{vars.AZURE_KEY_VAULT}}" --name "CLIENT_ID_CODE_AUTHORIZATION" --value "${{ secrets.CLIENT_ID_CODE_AUTHORIZATION }}"
 
   configure-aks:
@@ -109,10 +90,10 @@ jobs:
           az aks create \
           --resource-group ${{vars.AZURE_RESOURCE_GROUP}} \
           --name "${{vars.AZURE_AKS_CLUSTER}}" \
-          --node-count 1 \
+          --node-count 2 \
           --enable-addons monitoring \
           --generate-ssh-keys \
-          --node-vm-size Standard_B2s
+          --node-vm-size Standard_D2_v2
 
 #          az aks update --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_AKS_CLUSTER}}" --tier free  # Configura el nivel gratuito
 
@@ -128,35 +109,30 @@ jobs:
 #          kubectl apply -f k8s/dev
 #          kubectl rollout status deployment/gateway-dev -n development
 #          kubectl get ingress -n development  # Verifica los recursos de networking
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [configure-aks]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
 
 
-
-
-
-
-
-
-      - name: Give execute permissions to deploy script
-        run: chmod +x k8s/dev/deploy-dev.sh
-
-      - name: Deploy to AKS
-        run: ./k8s/dev/deploy-dev.sh  # Ejecuta el script
-
-      - name: Deploy to AKS
-        run: |
-          az aks get-credentials --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_AKS_CLUSTER}}" --overwrite-existing
-          kubectl apply -f k8s/dev
-          kubectl rollout status deployment/gateway-dev -n development
-          kubectl get ingress -n development  # Verifica los recursos de networking
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: [configure-aks]
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Login to Azure
+#        uses: azure/login@v2
+#        with:
+#          creds: ${{ secrets.AZURE_CREDENTIALS }}
+#
+#      - name: Give execute permissions to deploy script
+#        run: chmod +x k8s/dev/deploy-dev.sh
+#
+#      - name: Deploy to AKS
+#        run: ./k8s/dev/deploy-dev.sh  # Ejecuta el script
+#
+#      - name: Deploy to AKS
+#        run: |
+#          az aks get-credentials --resource-group "${{vars.AZURE_RESOURCE_GROUP}}" --name "${{vars.AZURE_AKS_CLUSTER}}" --overwrite-existing
+#          kubectl apply -f k8s/dev
+#          kubectl rollout status deployment/gateway-dev -n development
+#          kubectl get ingress -n development  # Verifica los recursos de networking

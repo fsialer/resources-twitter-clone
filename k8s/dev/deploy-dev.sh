@@ -3,7 +3,10 @@ kubectl create namespace development
 
 kubectl apply -f configmap-dev.yml
 
-kubectl apply -f azure-keyvault-secret-provider.yml
+#kubectl apply -f azure-keyvault-secret-provider.yml
+kubectl apply -f secret.yml
+
+kubectl create configmap postgres-init-sql --from-file=init-db.sql -n dev
 
 kubectl apply -f postgres-dev-pv.yml
 kubectl apply -f mongo-posts-dev-pv.yml
