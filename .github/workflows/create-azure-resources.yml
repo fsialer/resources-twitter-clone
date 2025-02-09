@@ -101,6 +101,7 @@ jobs:
           --enable-addons azure-keyvault-secrets-provider \
           --generate-ssh-keys \
           --node-vm-size Standard_D2_v2
+          --output jsonc
 
 #      - name: Give execute permissions to deploy script
 #        run: chmod +x k8s/dev/deploy-dev.sh
