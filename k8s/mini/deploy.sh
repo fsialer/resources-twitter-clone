@@ -1,20 +1,12 @@
 #!/bin/bash
 
-# Crear una Managed Identity
-az identity create --name twitter-clone-keyvault-aks --resource-group gr-twitterclone
-# Obtener el CLIENT_ID de la Managed Identity
-MI_CLIENT_ID=$(az identity show --name twitter-clone-keyvault-aks --resource-group gr-twitterclone --query 'clientId' -o tsv)
-
-# Otorgar acceso a Key Vault
-
-az keyvault set-policy --name twitter-clone-vault --resource-group gr-twitterclone \
-    --secret-permissions get list --spn $MI_CLIENT_ID
-
 kubectl create namespace dev
 
 kubectl apply -f configmap-dev.yml
 
 kubectl apply -f secret.yml
+
+#kubectl apply -f azure-keyvault-secret.yml
 
 kubectl create configmap postgres-init-sql --from-file=init-db.sql -n dev
 

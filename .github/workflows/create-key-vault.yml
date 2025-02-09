@@ -1,5 +1,0 @@
-name: CREATE KEY VAULT
-
-on:
-  workflow_dispatch:
-jobs:

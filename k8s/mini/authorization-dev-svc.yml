@@ -10,4 +10,4 @@ spec:
       targetPort: 9000
   selector:
     app: authorization-server
-  type: ClusterIP
+  type: LoadBalancer
