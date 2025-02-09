@@ -2,42 +2,42 @@
 
 kubectl create namespace dev
 
-kubectl apply -f configmap-dev.yml
+kubectl apply -f configmap.yml -n dev
 
-kubectl apply -f secret.yml
+#kubectl apply -f secret.yml -n dev
 
-#kubectl apply -f azure-keyvault-secret.yml
+kubectl apply -f azure-keyvault-secret.yml -n dev
 
 kubectl create configmap postgres-init-sql --from-file=init-db.sql -n dev
 
-kubectl apply -f postgres-dev-pv.yml
-kubectl apply -f mongo-pv.yml
+kubectl apply -f postgres-pv.yml -n dev
+kubectl apply -f mongo-pv.yml -n dev
 
-kubectl apply -f postgres-dev-pvc.yml
-kubectl apply -f mongo-pvc.yml
+kubectl apply -f postgres-pvc.yml -n dev
+kubectl apply -f mongo-pvc.yml -n dev
 
-kubectl apply -f postgres-dev-deploy.yml
-kubectl apply -f mongo-deploy.yml
+kubectl apply -f postgres-deploy.yml -n dev
+kubectl apply -f mongo-deploy.yml -n dev
 
-kubectl apply -f postgres-dev-svc.yml
-kubectl apply -f mongo-svc.yml
+kubectl apply -f postgres-svc.yml -n dev
+kubectl apply -f mongo-svc.yml -n dev
 
-kubectl apply -f users-dev-deploy.yml
-kubectl apply -f posts-dev-deploy.yml
-kubectl apply -f comments-dev-deploy.yml
-kubectl apply -f likes-dev-deploy.yml
-kubectl apply -f followers-dev-deploy.yml
-kubectl apply -f notifications-dev-deploy.yml
+kubectl apply -f users-deploy.yml -n dev
+kubectl apply -f posts-deploy.yml -n dev
+kubectl apply -f comments-deploy.yml -n dev
+kubectl apply -f likes-deploy.yml -n dev
+kubectl apply -f followers-deploy.yml -n dev
+kubectl apply -f notifications-deploy.yml -n dev
 
-kubectl apply -f users-dev-svc.yml
-kubectl apply -f posts-dev-svc.yml
-kubectl apply -f comments-dev-svc.yml
-kubectl apply -f likes-dev-svc.yml
-kubectl apply -f followers-dev-svc.yml
-kubectl apply -f notifications-dev-svc.yml
+kubectl apply -f users-svc.yml -n dev
+kubectl apply -f posts-svc.yml -n dev
+kubectl apply -f comments-svc.yml -n dev
+kubectl apply -f likes-svc.yml -n dev
+kubectl apply -f followers-svc.yml -n dev
+kubectl apply -f notifications-svc.yml -n dev
 
-kubectl apply -f authorization-dev-deploy.yml
-kubectl apply -f gateway-dev-deploy.yml
+kubectl apply -f authorization-deploy.yml -n dev
+kubectl apply -f gateway-deploy.yml -n dev
 
-kubectl apply -f authorization-dev-svc.yml
-kubectl apply -f gateway-dev-svc.yml
+kubectl apply -f authorization-svc.yml -n dev
+kubectl apply -f gateway-svc.yml -n dev

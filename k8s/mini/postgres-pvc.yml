@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mongo-pvc
+  name: postgres-pvc
 spec:
-  volumeName: mongo-pv
+  volumeName: postgres-pv
   accessModes:
     - ReadWriteOnce
   storageClassName: standard

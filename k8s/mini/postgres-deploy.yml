@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres16
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres16
+  template:
+    metadata:
+      labels:
+        app: postgres16
+    spec:
+      containers:
+        - image: postgres:16-alpine
+          name: postgres16
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              #value: root => esto se soloca cuando quieres poner los datso en duro
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: postgres_password
+            - name: POSTGRES_USER
+              #value: root => esto se soloca cuando quieres poner los datso en duro
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: postgres_user
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: users-service
+                  key: db_name
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: postgres-init-script
+              mountPath: /docker-entrypoint-initdb.d
+            - name: azure-secrets
+              mountPath: /mnt/secrets-store
+              readOnly: true
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+        - name: postgres-init-script
+          configMap:
+            name: postgres-init-sql  # Monta el ConfigMap con el script SQL
+        - name: azure-secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-key-vault-secret"

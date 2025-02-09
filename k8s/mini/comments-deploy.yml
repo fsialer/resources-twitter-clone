@@ -1,43 +1,53 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongo6
+  name: comments-service
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: mongo6
+      app: comments-service
   template:
     metadata:
       labels:
-        app: mongo6
+        app: comments-service
     spec:
       containers:
-        - image: mongo:6.0
-          name: mongo6
+        - image: feralexis007/twitter-clone-comments-service:dev-65d45f2
+          name: comments-service
           ports:
-            - containerPort: 27017
+            - containerPort: 8082
           env:
-            - name: MONGO_INITDB_ROOT_USERNAME
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: comments-service
+                  key: db_host
+            - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: mongo-secrets
                   key: mongo_user
-            - name: MONGO_INITDB_ROOT_PASSWORD
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mongo-secrets
                   key: mongo_password
+            - name: USERS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: comments-service
+                  key: users_url
+            - name: POSTS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: comments-service
+                  key: posts_url
           volumeMounts:
-            - name: mongo
-              mountPath: /data/db
             - name: azure-secrets
               mountPath: /mnt/secrets-store
               readOnly: true
       volumes:
-        - name: mongo
-          persistentVolumeClaim:
-            claimName: mongo-pvc
         - name: azure-secrets
           csi:
             driver: secrets-store.csi.k8s.io

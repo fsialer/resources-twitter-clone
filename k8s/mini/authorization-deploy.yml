@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authorization-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authorization-server
+  template:
+    metadata:
+      labels:
+        app: authorization-server
+    spec:
+      containers:
+        - image: feralexis007/twitter-clone-authorization-server:dev-92bf451
+          name: authorization-server
+          ports:
+            - containerPort: 9000
+          env:
+            - name: CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-server
+                  key: client_url
+
+            - name: AUTH_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-server
+                  key: auth_server
+
+            - name: USERS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: authorization-server
+                  key: users_url
+
+            - name: CLIENT_ID_CODE_AUTHORIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secrets
+                  key: client_id_code_authorization
+
+            - name: CLIENT_SECRET_CODE_AUTHORIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secrets
+                  key: client_secret_code_authorization
+
+            - name: CLIENT_ID_CLIENT_CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secrets
+                  key: client_id_client_credentials
+
+            - name: CLIENT_SECRET_CLIENT_CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  name: authorization-secrets
+                  key: client_secret_client_credentials
+          volumeMounts:
+            - name: azure-secrets
+              mountPath: /mnt/secrets-store
+              readOnly: true
+      volumes:
+        - name: azure-secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-key-vault-secret"
