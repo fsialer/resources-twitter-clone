@@ -1,0 +1,80 @@
+AZ_GROUP_NAME=""
+AZ_LOCATION=""
+AZ_PLAN_SERVICE=""
+AZ_STORAGE_NAME=""
+AZ_FUNCTION_NAME=""
+AZ_BUS_SERVICE_NAME=""
+AZ_TOPIC_NAME=""
+AZ_SUBSCRIPTION_NAME=""
+AZ_KEY_VAULT_NAME=""
+AZ_KEY_AKS_CLUSTER_NAME=""
+AZ_AKS_CLUSTER_NAME=""
+ARM_SUBSCRIPTION=""
+ARM_TENANT_ID=""
+CLIENT_ID_CODE_AUTHORIZATION=""
+SECRET_CODE_AUTHORIZATION=""
+CLIENT_ID_CLIENT_CREDENTIALS=""
+CLIENT_SECRET_CLIENT_CREDENTIALS=""
+POSTGRES_USER=""
+POSTGRES_PASSWORD=""
+MONGO_USER=""
+MONGO_PASSWORD=""
+KEY_SECRET=""
+SEND_GRID_SENDER_EMAIL=""
+SEND_GRID_API_KEY=""
+SMTP_SENDER_EMAIL=""
+SMTP_USER=""
+SMTP_PASSWORD=""
+SMTP_HOST=""
+SMTP_PORT=""
+LISTS_SECRETS=[
+  {"KEY":"client-id-code-authorization",
+    "VALUE":""
+  },
+  {"KEY":"secret-code-authorization",
+    "VALUE":""
+  },
+  {"KEY":"client-id-client-credentials",
+    "VALUE":""
+  },
+  {"KEY":"client-secret-client-credentials",
+    "VALUE":""
+  },
+  {"KEY":"postgres-user",
+    "VALUE":""
+  },
+  {"KEY":"postgres-password",
+    "VALUE":""
+  },
+  {"KEY":"mongo-user",
+    "VALUE":""
+  },
+  {"KEY":"mongo-password",
+    "VALUE":""
+  },
+  {"KEY":"key-secret",
+    "VALUE":""
+  },
+  {"KEY":"send-grid-sender-email",
+    "VALUE":""
+  },
+  {"KEY":"send-grid-api-key",
+    "VALUE":""
+  },
+  {"KEY":"smtp-sender-email",
+    "VALUE":""
+  },
+  {"KEY":"smtp-user",
+    "VALUE":""
+  },
+  {"KEY":"smtp-password",
+    "VALUE":""
+  },
+  {"KEY":"smtp-host",
+    "VALUE":""
+  },
+  {"KEY":"smtp-port",
+    "VALUE":""
+  }
+]
+

@@ -1,155 +1,113 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "4.14.0"
-    }
-  }
-}
-provider "azurerm" {
-  feature {}
-}
 
 resource "azurerm_resource_group" "my_group" {
-  name = "gr-twitter-clone"
-  location = "East Us"
+  name = var.AZ_GROUP_NAME
+  location = var.AZ_LOCATION
+}
+
+resource "azurerm_service_plan" "plan_service_consumption" {
+  name                = var.AZ_PLAN_SERVICE
+  location            = azurerm_resource_group.my_group.location
+  resource_group_name = azurerm_resource_group.my_group.name
+  os_type             = "Linux"
+  sku_name            = "Y1"
+  depends_on = [azurerm_resource_group.my_group]
+}
+
+resource "azurerm_storage_account" "my_storage" {
+  name = var.AZ_STORAGE_NAME
+  location = azurerm_resource_group.my_group.location
+  resource_group_name = azurerm_resource_group.my_group.name
+  account_replication_type = "LRS"
+  account_tier = "Standard"
+  account_kind = "StorageV2"
+  depends_on = [azurerm_resource_group.my_group]
+}
+
+resource "azurerm_linux_function_app" "my_function" {
+  name                       = var.AZ_FUNCTION_NAME
+  location                   = azurerm_resource_group.my_group.location
+  resource_group_name        = azurerm_resource_group.my_group.name
+  service_plan_id            = azurerm_service_plan.plan_service_consumption.id
+  storage_account_name       = azurerm_storage_account.my_storage.name
+  storage_account_access_key = azurerm_storage_account.my_storage.primary_access_key
+  site_config {
+    application_stack{
+       # name = "java"
+       # os = "linux"
+       java_version = "21"
+    }
+
+  }
+  app_settings = {
+    FUNCTIONS_EXTENSION_VERSION = "~4"
+    FUNCTIONS_WORKER_RUNTIME = "java"  # Especifica el runtime
+    WEBSITE_RUN_FROM_PACKAGE = "1"     # Opcional, para ejecutar desde un ZIP
+  }
+  depends_on = [azurerm_service_plan.plan_service_consumption,azurerm_storage_account.my_storage]
+}
+
+resource "azurerm_servicebus_namespace" "my_bus"{
+  name = var.AZ_BUS_SERVICE_NAME
+  location = azurerm_resource_group.my_group.location
+  resource_group_name = azurerm_resource_group.my_group.name
+  sku = "Standard"
+  depends_on = [azurerm_resource_group.my_group]
+}
+
+resource "azurerm_servicebus_topic" "my_topic" {
+  name         = var.AZ_TOPIC_NAME
+  namespace_id = azurerm_servicebus_namespace.my_bus.id
+  depends_on = [azurerm_servicebus_namespace.my_bus]
+}
+
+resource "azurerm_servicebus_subscription" "my_subscription" {
+  max_delivery_count = 10
+  name               = var.AZ_SUBSCRIPTION_NAME
+  topic_id           = azurerm_servicebus_topic.my_topic.id
+  depends_on = [azurerm_servicebus_topic.my_topic]
 }
 
 resource "azurerm_key_vault" "my_vault" {
   location            = azurerm_resource_group.my_group.location
-  name                = "twitter-clone-vault"
+  name                = var.AZ_KEY_VAULT_NAME
   resource_group_name = azurerm_resource_group.my_group.name
   sku_name            = "standard"
   enable_rbac_authorization = true
-  tenant_id           = ""
+  tenant_id           = var.ARM_TENANT_ID
+  depends_on = [azurerm_resource_group.my_group]
 }
 
-resource "azurerm_key_vault_secret" "client_id_code_authorization" {
+resource "azurerm_key_vault_secret" "my_secret" {
   key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "client-id-code-authorization"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "secret_code_authorization" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "secret-code-authorization"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "client_id_credentials" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "client-id-client-credentials"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "secret_credentials" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "client-secret-client-credentials"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "postgres_user" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "postgres-user"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "postgres_password" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "postgres-password"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "mongo_user" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "mongo-user"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "mongo_password" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "mongo-password"
-  value        = ""
+  for_each = {for secret in var.LISTS_SECRETS: secret.KEY => secret.VALUE}
+  name         = each.key
+  value        = each.value
+  depends_on = [azurerm_key_vault.my_vault]
 }
 
 resource "azurerm_key_vault_secret" "connection_send_notification" {
   key_vault_id = azurerm_key_vault.my_vault.id
   name         = "connection-send-notification"
-  value        = ""
+  value        = azurerm_servicebus_namespace.my_bus.default_primary_connection_string
+  depends_on = [azurerm_key_vault.my_vault,azurerm_servicebus_namespace.my_bus]
 }
 
-resource "azurerm_key_vault_secret" "key_secret" {
+resource "azurerm_key_vault_key" "my_key" {
+  name         = var.AZ_KEY_AKS_CLUSTER_NAME
   key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "key-secret"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "send_grid_sender_email" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "send-grid-sender-email"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "send_grid_api_key" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "send-grid-api-key"
-  value        = ""
-}
-resource "azurerm_key_vault_secret" "smtp_sender_email" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "smtp-sender-email"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "smtp_user" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "smtp-user"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "smtp_password" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "smtp-password"
-  value        = ""
-}
-
-resource "azurerm_key_vault_secret" "smtp_host" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "smtp-host"
-  value        = ""
-}
-resource "azurerm_key_vault_secret" "smtp_port" {
-  key_vault_id = azurerm_key_vault.my_vault.id
-  name         = "smtp-port"
-  value        = ""
-}
-
-resource "azurerm_servicebus_namespace" "my_bus"{
-  name = "twitter-clone-bus"
-  location = azurerm_resource_group.my_group.location
-  resource_group_name = azurerm_resource_group.my_group.name
-  sku = "Standard"
-}
-
-resource "azurerm_servicebus_topic" "my_topic" {
-  name         = "send-notifications"
-  namespace_id = azurerm_servicebus_namespace.my_bus.id
-}
-
-resource "azurerm_servicebus_subscription" "my_subscription" {
-  max_delivery_count = 0
-  name               = "notification-post"
-  topic_id           = azurerm_servicebus_topic.my_topic.id
+  key_type     = "RSA"
+  key_size     = 2048
+  key_opts = ["encrypt", "decrypt", "sign", "verify"]
 }
 
 resource "azurerm_kubernetes_cluster" "my_aks" {
   location            = azurerm_resource_group.my_group.location
-  name                = "twitter-clone-aks"
+  name                = var.AZ_AKS_CLUSTER_NAME
   resource_group_name = azurerm_resource_group.my_group.name
   key_vault_secrets_provider {secret_rotation_enabled = true}
-  key_management_service {
-    key_vault_key_id = azurerm_key_vault.my_vault.id
-  }
+  # key_management_service {
+  #   key_vault_key_id = azurerm_key_vault_key.my_key.id
+  # }
   dns_prefix = "miaks"
 
   default_node_pool {
@@ -161,5 +119,6 @@ resource "azurerm_kubernetes_cluster" "my_aks" {
   identity {
     type = "SystemAssigned"
   }
+  depends_on = [azurerm_key_vault_key.my_key,azurerm_resource_group.my_group]
 }
 
